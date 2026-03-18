@@ -24,6 +24,37 @@ operations (LXC, Podman, Docker):
 Additionally, this fork carries the standard Proxmox GPU passthrough patches and documents
 the full system configuration required for reliable NVIDIA/AMD GPU passthrough.
 
+Additionally, this fork documents and carries a patch for a **new issue specific to
+NVIDIA Blackwell-generation GPUs** (RTX 5060, 5060 Ti, and likely the broader 50-series):
+
+3. **Firmware 1:1 IOMMU mapping rejection** — Blackwell GPUs set a firmware flag
+   requesting a unity IOMMU mapping. When `iommu=pt` is active, the kernel refuses
+   to hand the device to VFIO with the error:
+   `"Firmware has requested this device have a 1:1 IOMMU mapping, rejecting..."`.
+   The patch comments out the `return -EINVAL` in `vfio_pci_core.c` to allow
+   passthrough to proceed.
+
+---
+
+## 2. Add row 15 to the Patches Applied table
+
+| 15 | `0015-vfio-pci-bypass-firmware-1to1-iommu-mapping-check.patch` | **Custom:** Bypass Blackwell GPU firmware 1:1 IOMMU mapping rejection in `vfio_pci_core.c`. Required for RTX 5060/5060 Ti passthrough with `iommu=pt`. **Test lab only.** | ✅ |
+
+See [VFIO-1TO1-MAPPING-BYPASS.md](VFIO-1TO1-MAPPING-BYPASS.md) for full technical
+explanation, build instructions, and security considerations.
+
+---
+
+## 3. Add to Hardware Tested table
+
+| Passthrough GPU (alt) | NVIDIA GeForce RTX 5060 (GB206) — PCI IDs `10de:2d05`, `10de:22eb` |
+
+---
+
+## 4. Add to Related Links section
+
+* [Proxmox Bugzilla #7374](https://bugzilla.proxmox.com/show_bug.cgi?id=7374) — VFIO 1:1 mapping issue thread
+
 ---
 
 ## Hardware Tested
